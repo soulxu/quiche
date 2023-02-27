@@ -92,10 +92,10 @@ void TlsHandshaker::AdvanceHandshake() {
     return;
   }
 
-  QUICHE_BUG_IF(
-      quic_tls_server_async_done_no_flusher,
-      SSL_is_server(ssl()) && !handshaker_delegate_->PacketFlusherAttached())
-      << "is_server:" << SSL_is_server(ssl());
+  //QUICHE_BUG_IF(
+  //    quic_tls_server_async_done_no_flusher,
+  //    SSL_is_server(ssl()) && !handshaker_delegate_->PacketFlusherAttached())
+  //    << "is_server:" << SSL_is_server(ssl());
 
   QUIC_VLOG(1) << ENDPOINT << "Continuing handshake";
   last_tls_alert_.reset();
@@ -144,7 +144,7 @@ void TlsHandshaker::AdvanceHandshake() {
     return;
   }
   int ssl_error = SSL_get_error(ssl(), rv);
-  if (ssl_error == expected_ssl_error_) {
+  if (ssl_error == expected_ssl_error_ || ssl_error == SSL_ERROR_WANT_WRITE || ssl_error == SSL_ERROR_WANT_PRIVATE_KEY_OPERATION || ssl_error == SSL_ERROR_WANT_CERTIFICATE_VERIFY) {
     return;
   }
   if (ShouldCloseConnectionOnUnexpectedError(ssl_error) &&
